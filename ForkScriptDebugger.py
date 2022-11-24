@@ -11,7 +11,6 @@ workbook = xlrd.open_workbook("Urls.xls")
 #Get the first sheet in the workbook by index
 sheetRead = workbook.sheet_by_index(0)
 
-#Get URLS
 for i in range(0,sheetRead.ncols):
     urls=sheetRead.col_values(i)
 
@@ -21,37 +20,46 @@ print('Getting Data Please Wait.....')
 wb = Workbook()
 sheetWrite = wb.add_sheet('Sheet 1')
 
-# Specifying style of Head
+# Specifying style of Head in excel
 style = xlwt.easyxf('font: bold 1') 
   
-# Specifying Header
+# Specifying Header in excel
 sheetWrite.write(0, 0, 'URL', style)
 sheetWrite.write(0, 1, 'scriptStatus', style)
 
 i=1
 
 for URL in urls:
-    #
-    scraper = cloudscraper.create_scraper(delay=10, browser={'custom': 'ScraperBot/1.0',})
+    # Returns a CloudScraper instance
+    scraper = cloudscraper.create_scraper()
+    # Exception Handing
+    try:
+        info = scraper.get(URL).text # => "<!DOCTYPE html><html><head>..."
     
-    info = scraper.get(URL).text
-    
+    except Exception as e:
+        # Appending error
+        f = open("Error.txt", "a")
+        f.write("There is an Error")
+        f.close()
+
+    # Parsing HTML
     soup = BeautifulSoup(info, "html.parser")
-    
-    #Script Present or Not
-    
-    test = soup.find_all(text = re.compile('//pubs.contextads.live/(.*?)/(.*?)/generic.js'))
+
+    # Finding Ads of context ads is live or not 
+    scriptFinder = soup.find_all(text = re.compile('//pubs.contextads.live/(.*?)/(.*?)/generic.js'))
     
     sheetWrite.write(i, 0, URL)
     
-    if not test:
-        
+    if not scriptFinder:
+
         sheetWrite.write(i,1,'Absent')
-        
+    
     else:
+
         sheetWrite.write(i,1,'Present')
 
     i+=1
+    
     #Save output in excel
     wb.save('ContextAds.xls')
   
