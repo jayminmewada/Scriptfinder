@@ -59,8 +59,8 @@ for URL in urls:
         sheetWrite.write(i,1,'Present')
 
     i+=1
-    
+
     #Save output in excel
-    wb.save('ContextAds.xls')
+    wb.save('ContextAdsReport.xls')
   
 print('Complete!!!')
